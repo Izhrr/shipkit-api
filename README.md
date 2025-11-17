@@ -1,4 +1,4 @@
-# Shipkit API — Layanan Optimasi Biaya Pengiriman (Ringkas)
+# Shipkit API — Layanan Optimasi Biaya Pengiriman
 
 Shipkit API adalah layanan backend Python (FastAPI) untuk menghitung dan mengoptimalkan biaya pengiriman pada skenario e‑commerce.
 
