@@ -19,6 +19,7 @@ Instalasi singkat
 Konfigurasi ENV (penting)
 - Variabel yang wajib diset di environment (atau .env):
   - KOMERCE_API_KEY — API key untuk integrasi KOMERCE (wajib)
+  - JWT_SECRET_KEY - Key untuk JWT (wajib)
 
 Menjalankan (FastAPI + Uvicorn)
 - Jalankan server development/production menggunakan uvicorn:
