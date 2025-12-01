@@ -1,0 +1,8 @@
+fastapi
+uvicorn[standard]
+httpx
+pydantic
+python-dotenv
+python-jose[cryptography]
+bcrypt==4.0.1
+python-multipart
