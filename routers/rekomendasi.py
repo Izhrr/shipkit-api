@@ -39,7 +39,10 @@ async def get_sorted_recommendations(
 
 # TariffContext
 @router.post("/estimasi-ongkir-distrik", response_model=List[schemas.OpsiPengiriman])
-async def get_district_cost(request: schemas.PermintaanRekomendasi):
+async def get_district_cost(
+    request: schemas.PermintaanRekomendasi,
+    current_user: dict = Depends(verify_token)
+):
     """
     Tariff Context: mengembalikan daftar tarif mentah
     """
@@ -48,5 +51,6 @@ async def get_district_cost(request: schemas.PermintaanRekomendasi):
         request.destination_district_id,
         request.weight_grams
     )
+    print(f"User '{current_user['username']}' mengakses endpoint ongkir-distrik.")
     print("Sukses! Mengembalikan daftar kurir (TariffContext).")
     return opsi_list
