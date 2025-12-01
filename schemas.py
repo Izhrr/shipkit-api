@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import List, Optional # <-- Pastikan Optional di-import
+from typing import List, Optional
 from enum import Enum
 
 class SortType(str, Enum):
@@ -25,3 +25,15 @@ class PermintaanUrutkan(PermintaanRekomendasi):
         example="harga",
         description="Urutkan berdasarkan 'harga' (termurah) atau 'waktu' (tercepat)."
     )
+
+class LoginRequest(BaseModel):
+    username: str = Field(..., example="admin")
+    password: str = Field(..., example="password123")
+
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    expires_in: int
+
+class TokenData(BaseModel):
+    username: Optional[str] = None
