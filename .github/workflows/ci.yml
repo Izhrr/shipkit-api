@@ -46,8 +46,8 @@ jobs:
 
       - name: Run tests (pytest)
         env:
-          KOMERCE_API_KEY: ${{ secrets.KOMERCE_API_KEY }}
-          JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
+          KOMERCE_API_KEY: ${{ github.secrets.KOMERCE_API_KEY }}
+          JWT_SECRET_KEY: ${{ github.secrets.JWT_SECRET_KEY }}
         run: |
           pytest -q
 
@@ -59,10 +59,10 @@ jobs:
           path: coverage.xml
 
       - name: Upload coverage to Codecov (optional)
-        if: ${{ secrets.CODECOV_TOKEN != '' }}
+        if: ${{ github.secrets.CODECOV_TOKEN != '' }}
         uses: codecov/codecov-action@v4
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
+          token: ${{ github.secrets.CODECOV_TOKEN }}
           files: coverage.xml
 
   build-and-push:
@@ -80,7 +80,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ github.secrets.GITHUB_TOKEN }}
 
       - name: Build and push Docker image to GHCR
         uses: docker/build-push-action@v4
