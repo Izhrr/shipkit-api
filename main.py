@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routers import lokasi, rekomendasi, auth
+import os
+import uvicorn
 
 app = FastAPI(
     title="ShipKit API",
@@ -34,3 +36,7 @@ def read_root():
         "authentication": "JWT Token Required for protected endpoints",
         "login_endpoint": "/api/v1/login"
     }
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)
