@@ -5,6 +5,7 @@ from enum import Enum
 class SortType(str, Enum):
     HARGA_TERENDAH = "harga"
     WAKTU_TERCEPAT = "waktu"
+    REKOMENDASI_UTAMA = "utama"
 
 class OpsiPengiriman(BaseModel):
     name: str
