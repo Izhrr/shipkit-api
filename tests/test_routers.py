@@ -1,4 +1,3 @@
-import pytest
 from httpx import Response
 import respx
 from fastapi.testclient import TestClient

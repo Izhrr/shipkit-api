@@ -1,8 +1,6 @@
-import pytest
 from auth import authenticate_user, create_access_token
 from fastapi.testclient import TestClient
 from main import app
-from datetime import timedelta
 from jose import jwt
 import os
 

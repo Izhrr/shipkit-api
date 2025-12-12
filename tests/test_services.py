@@ -3,7 +3,6 @@ import respx
 from httpx import Response
 from services import parse_etd_to_float, parse_etd_to_tuple, call_komerce_calculate_acl
 from schemas import OpsiPengiriman
-import os
 from fastapi import HTTPException
 import httpx
 from schemas import OpsiPengiriman, SortType

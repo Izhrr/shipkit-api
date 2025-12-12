@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from typing import Any, List
+from typing import List
 
 import services
 import schemas
