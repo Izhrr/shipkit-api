@@ -100,27 +100,52 @@ def sort_shipping_options(
     """
     Mengurutkan daftar kurir untuk optimasi pengiriman (Core Algorithm)
     """
-    # sort by price
+
+    # CONDITION 1: TERMURAH
     if sort_by == SortType.HARGA_TERENDAH:
         print("Mengurutkan berdasarkan HARGA (termurah), lalu WAKTU...")
-        sorted_list = sorted(
+        return sorted(
             opsi_list, 
             key=lambda opsi: (
                 opsi.cost, 
-                parse_etd_to_tuple(opsi.etd)[0], # min_hari
-                parse_etd_to_tuple(opsi.etd)[1]  # max_hari
+                parse_etd_to_tuple(opsi.etd)[0],  # min_hari
+                parse_etd_to_tuple(opsi.etd)[1]   # max_hari
             )
         )
-    else: # sort by time
+
+    # CONDITION 2: TERCEPAT
+    if sort_by == SortType.WAKTU_TERCEPAT:
         print("Mengurutkan berdasarkan WAKTU (tercepat), lalu HARGA...")
-        # Urutkan berdasarkan min_hari, lalu max_hari, lalu harga (cost)
-        sorted_list = sorted(
+        return sorted(
             opsi_list, 
             key=lambda opsi: (
-                parse_etd_to_tuple(opsi.etd)[0], # min_hari
-                parse_etd_to_tuple(opsi.etd)[1], # max_hari
+                parse_etd_to_tuple(opsi.etd)[0],
+                parse_etd_to_tuple(opsi.etd)[1],
                 opsi.cost
             )
         )
-    
-    return sorted_list
+
+    # CONDITION 3: REKOMENDASI UTAMA (COST + ETD)
+    if sort_by == SortType.REKOMENDASI_UTAMA:
+        print("Mengurutkan berdasarkan SKOR REKOMENDASI UTAMA (cost+etd)...")
+
+        max_cost = max(opsi.cost for opsi in opsi_list if opsi.cost is not None)
+        max_etd = max(parse_etd_to_tuple(opsi.etd)[0] for opsi in opsi_list)
+
+        def score(opsi: OpsiPengiriman):
+            # normalisasi biaya
+            cost_n = opsi.cost / max_cost if opsi.cost else 1
+            
+            # normalisasi ETD
+            etd_min = parse_etd_to_tuple(opsi.etd)[0]
+            etd_n = etd_min / max_etd if etd_min != float('inf') else 1
+            
+            # bobot rekomendasi utama
+            w_cost = 0.75
+            w_time = 0.25
+
+            return (w_cost * cost_n) + (w_time * etd_n)
+
+        return sorted(opsi_list, key=score)
+
+    return opsi_list

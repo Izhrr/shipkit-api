@@ -6,3 +6,10 @@ python-dotenv
 python-jose[cryptography]
 bcrypt==4.0.1
 python-multipart
+pytest
+pytest-asyncio
+pytest-cov
+respx
+pytest-mock
+flake8
+ruff
