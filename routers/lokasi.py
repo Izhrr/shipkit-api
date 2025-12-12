@@ -24,9 +24,9 @@ async def get_all_provinces():
                 raise HTTPException(status_code=404, detail="Data provinsi tidak ditemukan")
             return data
     except httpx.HTTPStatusError as exc:
-        raise HTTPException(status_code=exc.response.status_code, detail=f"Error Komerce: {exc.response.text}")
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        if exc.response.status_code == 404:
+            raise HTTPException(status_code=404, detail="Data provinsi tidak ditemukan")
+        raise HTTPException(status_code=exc.response.status_code, detail="Error Komerce API")
 
 # Endpoint 2: Daftar Kota (by Provinsi)
 @router.get("/kota/{province_id}", response_model=List[dict])
@@ -44,9 +44,9 @@ async def get_cities_by_province(province_id: int):
                 raise HTTPException(status_code=404, detail="Data kota tidak ditemukan")
             return data
     except httpx.HTTPStatusError as exc:
-        raise HTTPException(status_code=exc.response.status_code, detail=f"Error Komerce: {exc.response.text}")
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        if exc.response.status_code == 404:
+            raise HTTPException(status_code=404, detail="Data kota tidak ditemukan")
+        raise HTTPException(status_code=exc.response.status_code, detail="Error Komerce API")
 
 # Endpoint 3: Daftar Distrik (by Kota)
 @router.get("/distrik/{city_id}", response_model=List[dict])
@@ -64,6 +64,6 @@ async def get_districts_by_city(city_id: int):
                 raise HTTPException(status_code=404, detail="Data distrik tidak ditemukan")
             return data
     except httpx.HTTPStatusError as exc:
-        raise HTTPException(status_code=exc.response.status_code, detail=f"Error Komerce: {exc.response.text}")
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        if exc.response.status_code == 404:
+            raise HTTPException(status_code=404, detail="Data distrik tidak ditemukan")
+        raise HTTPException(status_code=exc.response.status_code, detail="Error Komerce API")
