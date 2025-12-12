@@ -1,140 +1,115 @@
-# Shipkit API — Layanan Optimasi Biaya Pengiriman
+# ShipKit API — Quick Start & Setup
 
-Shipkit API adalah layanan backend Python (FastAPI) untuk menghitung dan mengoptimalkan biaya pengiriman pada skenario e‑commerce.
+Project singkat: backend FastAPI untuk optimasi biaya pengiriman (core domain: recommendation + tariff context). README ini to-the-point untuk initial setup, menjalankan lokal, testing, Docker, dan cara akses API yang sudah dideploy.
 
-Prasyarat
-- Python 3.10+
-- pip, virtualenv/venv
+DEMO (deployed)
+- Swagger / docs: https://shipkit-api-production.up.railway.app/docs
 
-Instalasi singkat
-1. Clone:
-   - git clone https://github.com/Izhrr/shipkit-api.git
-   - cd shipkit-api
-2. Virtual environment & install:
-   - python -m venv .venv
-   - source .venv/bin/activate  (Windows: .venv\Scripts\activate)
-   - pip install --upgrade pip
-   - pip install -r requirements.txt
+Ringkasan singkat
+- Bahasa: Python 3.10+
+- Framework: FastAPI
+- Test: pytest (+ pytest-asyncio, respx), coverage enforced >= 95%
+- Docker: Dockerfile (multi-stage) sudah disediakan
+- CI: GitHub Actions workflow di `.github/workflows/ci.yml`
 
-Konfigurasi ENV (penting)
-- Variabel yang wajib diset di environment (atau .env):
-  - KOMERCE_API_KEY — API key untuk integrasi KOMERCE (wajib)
-  - JWT_SECRET_KEY - Key untuk JWT (wajib)
+Struktur repository (penting)
+- main.py — entrypoint FastAPI
+- auth.py — autentikasi JWT, helper token
+- config.py — env config (KOMERCE_API_KEY, JWT_SECRET_KEY, ...)
+- services.py — logika optimasi & pemanggilan Komerce
+- schemas.py — pydantic models
+- routers/
+  - auth.py
+  - lokasi.py
+  - rekomendasi.py
+- tests/ — unit tests (pytest)
+- Dockerfile — multi-stage Dockerfile
+- .github/workflows/ci.yml — CI pipeline
 
-Menjalankan (FastAPI + Uvicorn)
-- Jalankan server development/production menggunakan uvicorn:
-  - uvicorn app.main:app --reload
-
-
-NOTE
-- Jangan commit credentials (.env) ke repository publik.
-
-License
-- MIT
-
-# Shipkit API — Layanan Optimasi Biaya Pengiriman
-
-[![CI](https://github.com/Izhrr/shipkit-api/actions/workflows/ci.yml/badge.svg)](https://github.com/Izhrr/shipkit-api/actions/workflows/ci.yml)
-[![Coverage](https://codecov.io/gh/Izhrr/shipkit-api/branch/main/graph/badge.svg)](https://codecov.io/gh/Izhrr/shipkit-api)
-
-Ringkasan:  
-Shipkit API adalah backend Python (FastAPI) untuk menghitung dan mengoptimalkan biaya pengiriman pada skenario e‑commerce. README ini diperluas sehingga penguji/kontributor tahu cara menjalankan aplikasi, menjalankan unit tests (TDD), dan memicu/memverifikasi CI.
-
-Checklist status:
-- [ ] CI: Linting & Tests (GitHub Actions)
-- [ ] Coverage >= 95%
-- [ ] Docker image build (GHCR) — optional
-- [ ] Service runs di Docker & melewati health checks
-
-Prasyarat
+Prasyarat (singkat)
 - Python 3.10+
 - pip
-- (Opsional untuk CLI) GitHub CLI (gh)
-- Docker (opsional jika ingin build/run image)
+- (opsional) Docker (jika ingin build/run container)
+- (opsional) gh (GitHub CLI) untuk menjalankan workflow dari CLI
 
-Struktur repo singkat
-- main.py — FastAPI app entrypoint
-- auth.py — JWT auth helpers
-- config.py — konfigurasi env + var
-- services.py — logika optimalisasi / wrapper Komerce
-- schemas.py — pydantic models
-- routers/ — routers untuk auth, lokasi, rekomendasi
-- tests/ — kumpulan unit tests (pytest)
-- .github/workflows/ci.yml — workflow CI
-- requirements.txt
-- requirements-dev.txt (dev dependencies; pytest, respx, dll)
+Environment variables (yang WAJIB/sering dipakai)
+- JWT_SECRET_KEY — kunci JWT (contoh dev: `test-secret-key`)
+- KOMERCE_API_KEY — API key Komerce (opsional untuk integrasi nyata; tests menggunakan mocking)
+CATATAN: Jangan commit .env ke repo. Tambahkan secrets di GitHub → Settings → Secrets and variables → Actions.
 
-Instalasi & menjalankan lokal
-1. Clone repo:
+Quick local setup
+1. Clone:
    git clone https://github.com/Izhrr/shipkit-api.git
    cd shipkit-api
 
-2. Virtual environment:
+2. Buat virtualenv & aktifkan:
    python -m venv .venv
-   source .venv/bin/activate         # Linux/Mac
-   # .venv\Scripts\activate          # Windows
+   source .venv/bin/activate    # Linux/macOS
+   .venv\Scripts\activate     # Windows
 
 3. Install dependencies:
    pip install --upgrade pip
    pip install -r requirements.txt
 
+Menjalankan aplikasi lokal
+- Jalankan:
+  uvicorn main:app --reload --host 0.0.0.0 --port 8000
+- Buka:
+  http://localhost:8000/docs  (Swagger UI)
 
-4. Menjalankan server (development):
-   uvicorn main:app --reload --host 0.0.0.0 --port 8000
-   Akses: http://localhost:8000
-   Dokumentasi interaktif: http://localhost:8000/docs
+API penting & contoh cepat:
+- POST /api/v1/login
+  - Body:
+    {
+      "username": "admin",
+      "password": "admin123"
+    }
+  - Default test creds tersedia:
+    - admin / admin123
+    - user / user123
+  - Response: access_token (Bearer)
 
-Environment variables (secrets)
-Jangan commit .env ke repo. Tambahkan secrets di GitHub Settings → Secrets and variables → Actions.
+- POST /api/v1/rekomendasi/urutkan (protected)
+  - Header: Authorization: Bearer <token>
+  - Body contoh:
+    {
+      "origin_district_id": "1391",
+      "destination_district_id": "1376",
+      "weight_grams": 1000,
+      "sort_by": "harga"
+    }
 
-Minimal variables yang dibutuhkan:
-- JWT_SECRET_KEY — kunci untuk membuat dan mem-verifikasi JWT (contoh: test-secret-key)
-- KOMERCE_API_KEY — (opsional) API key Komerce untuk ambil data dari API RajaOngkir
+- POST /api/v1/estimasi-ongkir-distrik (protected)
+  - Sama format request tanpa sort_by; mengembalikan daftar opsi mentah
 
-Gunakan .env untuk dev lokal (contoh .env):
-KOMERCE_API_KEY=your_komerce_api_key_here
-JWT_SECRET_KEY=your_jwt_secret_here
-
-Menjalankan tests (panduan lengkap untuk penguji)
-Testing di sini berprinsip TDD: unit tests lengkap, mocking panggilan eksternal, coverage >= 95%.
-
-1. Pastikan dev deps terinstal:
-   pip install -r requirements.txt
-
-2. Struktur tests:
-   - tests/conftest.py — fixture TestClient & env deterministic
-   - tests/test_services.py — parsing ETD + mocking call_komerce_calculate_acl
-   - tests/test_auth.py — authenticate_user, create_access_token, login endpoint
-   - tests/test_routers.py — routers: lokasi, rekomendasi (melalui TestClient)
-
-3. Menjalankan tests lokal:
+Testing (TDD) — bagaimana penguji harus jalanin
+1. Pastikan dev deps terinstall (lihat di atas)
+2. Jalankan tests:
    pytest -q
+3. Coverage:
+   pytest --cov=./ --cov-report=term-missing --cov-report=xml
+   Catatan: pytest.ini di repo sudah mengatur `--cov-fail-under=95` sehingga CI akan gagal bila coverage <95%.
+4. Mocking eksternal:
+   - Tests memmock semua panggilan httpx ke Komerce menggunakan `respx`. Jangan jalankan tests yang memanggil API publik nyata.
 
-CI (GitHub Actions) — cara menjalankan & memeriksa
-Workflow utama: .github/workflows/ci.yml — melakukan:
-- checkout
-- setup python 3.10
-- install requirements + dev deps
-- lint (ruff)
-- run pytest (coverage enforced)
-- upload artifact coverage.xml
-- build & push Docker image ke GHCR (opsional, hanya pada push to main)
+CI (singkat)
+- File workflow: `.github/workflows/ci.yml`
+- Apa yang dilakukan: lint (ruff), install deps, run pytest (coverage enforced), build Docker (on push to main).
+- Manual trigger: Actions → pilih workflow → Run workflow (workflow_dispatch supported).
 
-Menjalankan workflow manual (workflow_dispatch)
-1. Buka repo → tab Actions → pilih workflow CI
-2. Klik “Run workflow”.
-3. Pilih branch (biasanya main) → Run workflow.
-4. Buka run → lihat job “Lint & Test” → expand steps → periksa output pytest.
-5. Artifact coverage: di halaman run ada link Artifacts → download coverage-report.
+Docker — build & run (singkat & aman)
+- Dockerfile multi-stage sudah ada di repo.
+- Build lokal:
+  docker build -t shipkit-api:local .
+- Jalankan (gunakan .env, jangan commit .env):
+  docker run --rm -p 8000:8000 --env-file .env shipkit-api:local
+- Dev (reload dengan mount):
+  docker run --rm -p 8000:8000 -v "$(pwd)":/app --env-file .env shipkit-api:local uvicorn main:app --reload --host 0.0.0.0 --port 8000
+- Push ke registry:
+  - GHCR direkomendasikan: tag ghcr.io/<owner>/<repo>:<tag> lalu push (CI workflow dapat push menggunakan GITHUB_TOKEN).
+  - Untuk Docker Hub, siapkan DOCKERHUB_USERNAME & DOCKERHUB_TOKEN secrets.
 
-Melihat logs via CLI (opsional)
-- Pastikan gh CLI terinstal & login.
-- Jalankan workflow:
-  gh workflow run ci.yml --ref main
-- Cek run list:
-  gh run list
-- Lihat logs:
-  gh run view <run-id> --log
-
-Kontributor & Lisensi
-- License: MIT
+Notes & best-practices (singkat)
+- Tests harus mocking semua external calls — CI juga mengharapkan itu.
+- Jangan commit .env / credentials. Gunakan GitHub Secrets untuk CI.
+- Health/Smoke: akses `/` atau `/docs` untuk memastikan service running.
