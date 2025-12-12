@@ -13,3 +13,4 @@ respx
 pytest-mock
 flake8
 ruff
+passlib
